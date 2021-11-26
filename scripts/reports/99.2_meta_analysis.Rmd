@@ -1,0 +1,199 @@
+# Appendix 2: Meta-analysis of the association between age at menarche and depressive symptoms
+  in early-mid adolescence
+```{r include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+
+## Overview
+To determine the smallest effect size of interest (SESOI) for hypothesis 1a, we performed a meta-analysis of the association between age at menarche and depressive symptoms in early-to-mid adolescence. After screening all studies included in the meta-analysis by Ullsperger & Nikolas (2017), we included 5 studies of adolescents where this association was reported with sufficient detail:
+
+- Joinson, C., Heron, J., Araya, R. & Lewis, G. Early menarche and depressive symptoms from adolescence to young adulthood in a UK cohort. *J. Am. Acad. Child Adolesc. Psychiatry* **52**, 591–598 (2013)
+- Black, S. R. & Klein, D. N. Early menarcheal age and risk for later depressive symptomatology: the role of childhood depressive symptoms. *J. Youth Adolesc.* **41**, 1142–1150 (2012).
+- Stice, E., Presnell, K. & Bearman, S. K. Relation of early menarche to depression, eating disorders, substance abuse, and comorbid psychopathology among adolescent girls. *Dev. Psychol.* **37**, 608–619 (2001).
+- Lien, L., Haavet, O. R. & Dalgard, F. Do mental health and behavioural problems of early menarche persist into late adolescence? A three year follow-up study among adolescent girls in Oslo, Norway. *Soc. Sci. Med.* **71**, 529–533 (2010).
+- Kaltiala-Heino, R., Marttunen, M., Rantanen, P. & Rimpelä, M. Early puberty is associated with mental health problems in middle adolescence. *Soc. Sci. Med.* **57**, 1055–1064 (2003).
+
+The code for the meta-analysis is below. Our approach was inspired by [Baldwin et al.](https://springernature.figshare.com/articles/journal_contribution/Adverse_childhood_experiences_and_mental_health_A_genetically_informed_study_Registered_Report_Stage_1_Protocol_/13580777)
+
+## Load libraries
+```{r, message=FALSE}
+library(effectsize) # for effect size conversions
+library(compute.es) # for effect size conversions
+library(metafor) # for meta-analysis
+```
+
+## Extract data from studies
+
+## Joinson et al. (2013)
+Estimates were taken from Table 2, early menarche compared to late menarche at age 14 (whole sample, unadjusted). 
+```{r }
+OR <- 1.94
+OR_low_CI <- 1.39
+OR_up_CI <- 2.71
+log_OR <- log(OR) # convert odds ratios to log odds
+log_SE <- ( log(OR_up_CI) - log(OR_low_CI) ) / 3.92 # convert odds ratio SE to log odds SE
+var <- log_SE^2 # derive sampling variance 
+id <- "joinson"
+N1 <- 449 # depression at age 14 based on table 1
+N2 <- 2843 - N1 # no depression
+
+# transform log odds ratios to standardized beta/correlation coefficients
+conversion <- lores(log_OR, var, N1, N2, dig=20, verbose=FALSE)
+B <- conversion$r
+B_var <- conversion$var.r
+
+# put extracted data into dataframe
+joinson <- data.frame(B, B_var, id)
+joinson
+```
+
+## Black & Klein (2012)
+Estimates were taken from Table 4, age at menarche onset predicting postpubertal depressive symptoms at age 13 (adjusted, since unadjusted was not reported). 
+```{r}
+b <- 0.37
+b_se <- 0.09
+B <- 0.14
+B_se <- B*(b_se/b) # derive SE
+B_var <- B_se^2 # derive sampling variance
+id <- "black_klein"
+
+# put extracted data into dataframe
+black_klein <- data.frame(B, B_var, id)
+black_klein
+```
+
+## Stice et al. (2001)
+Estimates were taken from Table 3, early menarche compared to nonearly menarche, at age 13 (unadjusted). 
+```{r}
+B <- 0.14
+b <- 1.61
+b_low_ci <- 0.61
+b_up_ci <- 2.62
+B_low_ci <- B*(b_low_ci/b)
+B_up_ci <- B*(b_up_ci/b)
+B_var <- ( (B_up_ci - B_low_ci) / 3.92 )^2 # derive sampling variance
+id <- "stice"
+
+# put extracted data into dataframe
+stice <- data.frame(B, B_var, id)
+stice
+```
+
+## Lien et al. (2010)
+Estimates were taken from Table 4, time of menarche below 11 years, assessed at age 15 (unadjusted).
+```{r}
+OR <- 2.5
+OR_low_CI <- 1.6
+OR_up_CI <- 3.9
+log_OR <- log(OR) # convert odds ratios to log odds
+log_SE <- ( log(OR_up_CI) - log(OR_low_CI) ) / 3.92 # convert odds ratio SE to log odds SE
+var <- log_SE^2 # derive sampling variance
+id <- "lien"
+N1 <- 353 # depression at age 15 based on table 1
+N2 <- 1013 # no depression at age 15 based on table 1
+
+# transform log odds ratios to standardized beta/correlation coefficients
+conversion <- lores(log_OR, var, N1, N2, dig=20, verbose=FALSE)
+B <- conversion$r
+B_var <- conversion$var.r
+
+# put extracted data into dataframe
+lien <- data.frame(B, B_var, id)
+lien
+```
+
+## Kaltiala-Heino et al. (2003)
+Early age at menarche (AAM) was defined by authors as 11 years or lower. They reported results for those with AAM 10 years or lower and 11 years separately. Therefore, we combined the 10 years or lower and 11 years estimates. Estimates were derived based on values reported in Table 1 (frequency distribution of adolescents by year of menarche), Table 2 (prevalence of depression), and Table 3 (prevalence of depression in girls according to age at menarche), comparing AAM at 11 years and lower to AAM at age 15, assessed at age 15. 
+```{r}
+# derive numbers in those with AAM 11yrs or less
+n10less <- 19196*0.031
+n11 <- 19196*0.157
+
+n11less <- n10less+n11
+
+ndep11less <- n11*0.156 + n10less*.206
+
+# derive numbers in reference group
+nref <- 19196*0.021
+ndepref <- nref*0.089
+
+# odds of depression in those with AAM 11yrs or less
+probdep11less <- ndep11less/n11less
+probNdep11less <- 1-probdep11less
+
+odds <- probdep11less / probNdep11less
+
+oddsref <- 0.089/(1-0.089)
+
+or <- odds/oddsref
+
+# calculate SE
+se <- sqrt(1/ndep11less+ 
+             1/(n11less-ndep11less)+
+             1/ndepref+
+             1/(nref-ndepref))
+
+# calculate CIs
+lci = or - 1.96*se
+uci = or + 1.96*se
+
+# extract data derived based on the above calculations
+OR <- or
+OR_low_CI <- lci
+OR_up_CI <- uci
+log_OR <- log(OR) # convert odds ratios to log odds
+log_SE <- ( log(OR_up_CI) - log(OR_low_CI) ) / 3.92 # convert odds ratio SE to log odds SE
+var <- log_SE^2 # derive sampling variance 
+id <- "kaltiala"
+N1 <- 2567 # depression based on table 2
+N2 <- 16529 # no depression based on table 2
+
+# transform log odds ratios to standardized beta/correlation coefficients
+conversion <- lores(log_OR, var, N1, N2, dig=20, verbose=FALSE)
+B <- conversion$r
+B_var <- conversion$var.r
+
+# put extracted data into dataframe
+kaltiala <- data.frame(B, B_var, id)
+kaltiala
+```
+
+## Merge effect sizes
+```{r}
+all_data <- list(joinson, black_klein, stice, lien, kaltiala)
+combined <- Reduce(function(...) merge(..., all=T), all_data)
+combined
+```
+
+## Perform meta-analysis
+```{r}
+res <- rma.mv(B, B_var, data = combined)
+res
+```
+
+## Convert effect size to *OR*
+First, convert meta-analytic effect size to odds ratio (*OR*) using a function based on equations presented [here](https://www.meta-analysis.com/downloads/Meta-analysis%20Converting%20among%20effect%20sizes.pdf).
+```{r}
+beta_to_or <- function(beta) {
+  d <- (2*beta) / sqrt ( 1 - (beta^2) )
+  log_odds <- d * (3.14159 / sqrt(3)) 
+  or <- exp(log_odds)
+  return(or)
+}
+
+beta_to_or(c(res$beta, res$ci.lb, res$ci.ub))
+```
+
+## Convert effect size to Cohen's *D*
+Then convert effect size from *OR* to *D*.
+```{r}
+oddsratio_to_d(c(1.657245, 1.511574, 1.818713))
+```
+
+## Decide equivalence bounds
+**This gives a meta-analytic estimate of *D* = 0.28(0.23-0.33).** According to best practice recommendations, the smallest effect size of interest is determined based on the lower confidence interval of this meta-analytic estimate (*D* = 0.23). The equivalence bounds are based on this value. 
+
+**The lower and upper equivalence bounds are therefore Cohen's *D* -0.23 - 0.23.**

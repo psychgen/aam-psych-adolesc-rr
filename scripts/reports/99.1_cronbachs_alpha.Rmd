@@ -1,0 +1,77 @@
+
+# Appendix 1: Psychometric properties of scales
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+#Load libraries
+
+```{r, message=FALSE}
+library(phenotools)
+library(psych)
+library(tidyverse)
+```
+
+#Curate data
+
+```{r, message=FALSE}
+ mylistdata <- curate_dataset(variables_required=
+                             c("rsdbd_adhd_c_8yr", "KJONN",                   
+                               "rsdbd_cd_c_8yr", "rsdbd_odd_c_8yr",                     
+                               "smfq_dep_c_8yr", "scared_anx_c_8yr"), 
+                             pheno_data_root_dir="N:/data/durable/data/MoBaPhenoData/PDB2306_MoBa_V12/SPSS/",
+                             PDB="2306",
+                             moba_data_version=12,
+                             completion_threshold=0.5,
+                             return_items=TRUE,
+                             consistent_items = FALSE,
+                             out_format="list")
+```
+
+##Separate items and scales
+
+```{r}
+ myitemdata <- mylistdata$moba$items
+ myscaledata <- mylistdata$moba$scales
+```
+
+##Filter by sex (2 = female)
+
+```{r}
+ myitemdata <- myitemdata %>%
+     filter(KJONN_raw==2)
+```
+ 
+#Create lists by scales
+
+```{r}
+ adhd <- select(myitemdata, 24, 25, 26, 27, 28, 29, 30, 31, 32, 
+                            33, 34, 35, 36, 37, 38, 39, 40, 41)
+ cd <- select(myitemdata, 50, 51, 52, 53, 54, 55, 56, 57)
+ odd <- select(myitemdata, 66, 67, 68, 69, 70, 71, 72, 73)
+ dep <- select(myitemdata, 97, 98, 99, 100, 101, 102, 103, 
+                           104, 105, 106, 107, 108, 109)
+ anx <- select(myitemdata, 79, 80, 81, 82, 83)
+```
+ 
+#Create function for ordinal data
+
+```{r}
+ ordinal_alpha <- function(x){
+    psych::alpha(psych::polychoric(x)$rho)
+ }
+```
+ 
+#Calculate Cronbach's alpha (N ~ 20,000)
+
+```{r}
+ ordinal_alpha(adhd)
+ ordinal_alpha(cd)
+ ordinal_alpha(odd)
+ ordinal_alpha(dep)
+ ordinal_alpha(anx)
+```
+
