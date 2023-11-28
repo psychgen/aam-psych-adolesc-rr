@@ -1,9 +1,8 @@
 Assessing causal links between age at menarche and adolescent mental
-health: A Registered Report
+health: a Mendelian randomisation study
 ================
 
 This repository contains scripts for the project: “Assessing causal
-links between age at menarche and adolescent mental health: A Registered
-Report”.
+links between age at menarche and adolescent mental health: a Mendelian randomisation study”.
 
-The Registered Report is in submission at Stage 1.
+The Stage 1 Registered Report has been accepted in-principle in BMC Medicine, and the Stage 2 is in preparation.
