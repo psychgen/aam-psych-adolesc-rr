@@ -1,0 +1,36 @@
+---
+title: "Assessing causal links between age at menarche and adolescent mental health: a Mendelian randomisation study"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This folder contains scripts for the Stage 2 Registered Report of the project: "Assessing causal links between age at menarche and adolescent mental health: a Mendelian randomisation study".
+
+Authors: Adrian Dahl Askelund (jaaskelu@uio.no/ada@lds.no), Robyn E. Wootton, Fartein A. Torvik, Rebecca B. Lawn, Helga Ask, Elizabeth C. Corfield, Maria C. Magnus, Ted Reichborn-Kjennerud, Per M. Magnus, Ole A. Andreassen, Camilla Stoltenberg, George Davey Smith, Neil M. Davies, Alexandra Havdahl, & Laurie J. Hannigan (Laurie.Hannigan@fhi.no).
+
+00_prepare_data.R curates and selects the analytic dataset based on questionnaire, covariate, registry (sourcing ´00.1_process_dx_data.R´), and genotype data (sourcing ´00.2_construct_grs.R´) including data manipulation and preparation of variables. It then conducts multiple imputation (sourcing ´00.3_multiple_imputation.R´) and processes the imputed datasets (sourcing ´00.4_process_imputed_data.R´). It also prepares phenotype and covariate files for GWAS (sourcing ´00.5_gwas_twosample.R´) preparing them for two-sample MR analyses (sourcing ´00.6_process_gwas_data.R´). Finally, it conducts sensitivity analyses regressing the genetic instrument for age at menarche on age at menarche reported by the adolescents in MoBa, and on all measured covariates (sourcing ´00.7_sensitivity_analyses_covs.R´).
+
+01_aim1_analyses.R runs a linear regression model for aam on dep_sx, and a logistic regression model for aam on dep_dx, saving out estimates. These analyses answer Aim 1 - to what extent earlier age at menarche is associated with elevated rates of adolescent depressive symptoms/depression. 
+
+01.1_aim1_exploratory_analyses.R runs exploratory observational analyses, with a) breast stage as an additional exposure, and b) models with a categorised version of the age at menarche exposure and a dichotomised depressive symptom outcome.
+02_aim2_analyses.R runs a linear regression model for aam on all sx variables, and a logistic regression model for aam on all dx variables, saving out estimates. These analyses answer Aim 2 - to what extent effects of age at menarche extend to other domains of mental health.
+
+03_aim3_analyses.R runs a 2SLS one-sample MR for causal effect of aam on dep sx, a 2SLS one-sample MR for causal effect of aam on earlier dep sx (negative control), and a 2SLS (logistic 2nd stage) one-sample MR for causal effect of aam on on dep dx. It then produces a plot containing estimates from Aim 1 and Aim 3. These analyses answer Aim 3 - whether any associations between earlier age at menarche and adolescent depressive symptoms/depression are likely to be causal.
+
+04_aim4_analyses.R runs a 2SLS one-sample MR for causal effect of aam on sx, a 2SLS one-sample MR for causal effect of aam on childhood sx (negative control), and a 2SLS (logistic 2nd stage) one-sample MR for causal effect of aam on on all dx variables. It then produces a plot containing estimates from Aim 2 and Aim 4. These analyses answer Aim 4 - whether any associations between earlier age at menarche and symptoms/diagnoses in other domains are likely to be causal.
+
+04.1_aim4_exploratory_analyses.R conducts exploratory analyses related to Aim 4. This includes adding adolescent depression dx and pre-pubertal dx for each domain as covariates, and running one-sample MR analysis with dx outcomes divided into pre-adolescence/early/mid-late adolescence.
+
+05_two_sample_MR.R conducts two-sample MR analyses and sensitivity checks (outside of TSD based on summary statistics), sourcing the script '05.1_two_sample_MR_functions.R'.
+
+06_MVMR_analyses.R conducts MVMR analyses and sensitivity checks (outside of TSD based on summary statistics), sourcing the script '06.1_MVMR_functions.R'.
+
+07_IPW_sensitivity.R runs inverse probability weighting (IPW) sensitivity analyses for symptoms and diagnoses of adolescent depression, sourcing the script `07.1_IPW_weights.R` where weights are generated. That script also sources another script (´07.2_utils.R´) with modified functions. 
+
+The ´GWAS/input_files/´ folder contains shell scripts for running GWAS of symptom outcomes in REGENIE.
+
+
+

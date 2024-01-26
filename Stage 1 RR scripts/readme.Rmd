@@ -1,0 +1,13 @@
+---
+title: "Assessing causal links between age at menarche and adolescent mental health: a Mendelian randomisation study"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This folder contains scripts for the Stage 1 Registered Report for project: "Assessing causal links between age at menarche and adolescent mental health: a Mendelian randomisation study".
+
+
+
